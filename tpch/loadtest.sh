@@ -2,12 +2,11 @@
 
 # Do loadtest of TPC-H
 
+. ./conf.sh
+
 BINDIR=`dirname $0`
 
 pushd $BINDIR/tpch-kit/dbgen
-
-DBNAME="tpch10"
-USER=root
 
 if [ $# -eq 2 ]
 then
@@ -21,9 +20,6 @@ if [ ! -z $PASSWORD ]
 then
 	MYSQL="$MYSQL -p$PASSWORD"
 fi
-
-# Create database
-$MYSQL -e "create database tpch;"
 
 MYSQL="$MYSQL $DBNAME"
 

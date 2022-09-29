@@ -1,4 +1,4 @@
 export DBNAME="tpch"
-export USER="dumi"
-export PASSWORD="Dumi1234"
+export USER="test"
+export PASSWORD="Test1234"
 export MYSQLEXE="mysql"
