@@ -18,7 +18,7 @@ gcc, g++, make, mariadb
 lmbench (2alpha8 net release)
 
 ```
-cd lmbench
+cd system/memory/lmbench
 make
 ```
 
@@ -37,15 +37,42 @@ Run the benchmark:
 
 The results are in CSV files with the current date in the filename. E.g., lmbench-graviton-2022-09-26-12-53-51-rdwr.csv
 
-- Storage
+- Disk (storage)
+
+```
+cd system/disk
+sudo ./run-disk-bench.sh
+```
+
+The results are shown on the screen and saved in a file named ``log-disk-<timestamp>.txt``.
+
 
 - Network
 
 ### TPC-H
 
-We use TPC-H V3.0.1
+We use TPC-H V3.0.1. Make sure you unzip and move the resulting folder into ``tpch-kit`` under ``tpch``.
 
 We modified the code from https://github.com/sjp38/tpch-mariadb
+
+```
+sudo apt install mariadb-server
+sudo apt install libmysqlclient-dev
+sudo mysql_secure_installation
+sudo mysql
+> CREATE USER 'test'@'localhost' IDENTIFIED BY 'Test1234';
+> CREATE DATABASE tpcc;
+> GRANT ALL PRIVILEGES ON tpcc.* TO 'test'@'localhost';
+> FLUSH PRIVILEGES;
+> EXIT;
+cd tpch
+./modify_src.sh
+./build.sh
+./dbgen.sh 1
+./loadtest.sh
+./mkqueries.sh 1
+./powertest.sh
+```
 
 ### TPC-C
 
@@ -74,7 +101,9 @@ mysql -utest -pTest1234 tpcc < add_fkey_idx.sql
 ### Redis
 
 ```
-redis-benchmark -n 1000000 -t set,get -q -P 10
+sudo apt install redis
+redis-server --version
+redis-benchmark -n 10000000 -t set,get -q -P 40
 ```
 
 ## License
