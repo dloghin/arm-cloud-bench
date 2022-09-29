@@ -4,8 +4,6 @@
 
 BINDIR=`dirname $0`
 
-pushd $BINDIR/tpch-kit/dbgen
-
 if [ $# -lt 1 ]
 then
 	echo "Usage: $0 <query number> [username [password]]"
@@ -26,4 +24,11 @@ then
 	MYSQL="$MYSQL -p$PASSWORD"
 fi
 
-$MYSQL $DBNAME < ./queries/query-`printf %02d $NUM_Q`.sql
+if ! [ -z "$PERFCMD" ]; then
+	mkdir -p perf-logs
+	$PERFCMD 2>&1 | tee perf-logs/perf-stat-query-`printf %02d $NUM_Q`.txt &
+fi	
+$MYSQL $DBNAME < ./tpch-kit/dbgen/queries/query-`printf %02d $NUM_Q`.sql
+if ! [ -z "$PERFCMD" ]; then
+	sudo killall -SIGINT perf
+fi

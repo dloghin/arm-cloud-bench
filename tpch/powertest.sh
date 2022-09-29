@@ -4,6 +4,7 @@
 
 . ./conf.sh
 
+TSTP=`date +%F-%H-%M-%S`
 BINDIR=`dirname $0`
 
 if [ $# -eq 2 ]
@@ -43,3 +44,7 @@ do
 done
 
 printf "Total: \t%16s secs\n" `msec_to_sec $TOTAL_MSECONDS`
+
+if ! [ -z "$PERFCMD" ]; then
+	mv perf-logs perf-logs-$TSTP
+fi
