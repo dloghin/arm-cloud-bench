@@ -1,7 +1,9 @@
 #!/bin/bash
 
-BASECMD1="python2 ycsb-0.17.0/bin/ycsb load redis -s"
-BASECMD2="python2 ycsb-0.17.0/bin/ycsb run redis -s"
+THREADS=20
+
+BASECMD1="python2 ycsb-0.17.0/bin/ycsb load redis -threads $THREADS -s"
+BASECMD2="python2 ycsb-0.17.0/bin/ycsb run redis -threads $THREADS -s"
 CMDSUFFIX="-p redis.host=127.0.0.1 -p redis.port=6379"
 
 REPS=3
