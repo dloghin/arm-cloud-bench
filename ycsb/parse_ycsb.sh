@@ -21,10 +21,11 @@ for DISTR in $DISTRS; do
 		for REP in `seq 1 $REPS`; do
 			FILE="$LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt"
 			TH=`cat $FILE | grep Throughput | cut -d ' ' -f 3`
-			RAVGLAT=`cat $FILE | grep "\[UPDATE\], AverageLatency" | cut -d ' ' -f 3`
-			WAVGLAT=`cat $FILE | grep "\[READ\], AverageLatency" | cut -d ' ' -f 3`
+			WAVGLAT=`cat $FILE | grep "\[UPDATE\], AverageLatency" | cut -d ' ' -f 3`
+			RAVGLAT=`cat $FILE | grep "\[READ\], AverageLatency" | cut -d ' ' -f 3`
 			echo "$REP;$DISTR;$WORKLOAD;$TH;$RAVGLAT;$WAVGLAT;" >> $OUTF
 		done
+		echo ";" >> $OUTF
 	done
 done
 
