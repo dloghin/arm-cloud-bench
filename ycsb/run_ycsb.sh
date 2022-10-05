@@ -5,7 +5,11 @@ set -x
 # DB="redis"
 DB="memcached"
 
-THREADS=1
+if [ $# -gt 0 ]; then
+	DB=$1
+fi
+
+THREADS=20
 
 BASECMD1="python2 ycsb-0.17.0/bin/ycsb load $DB -threads $THREADS -s"
 BASECMD2="python2 ycsb-0.17.0/bin/ycsb run $DB -threads $THREADS -s"
@@ -16,6 +20,9 @@ if [ "$DB" == "redis" ]; then
 elif [ "$DB" == "memcached" ]; then
 	CMDSUFFIX="-p memcached.hosts=127.0.0.1"
 	CMDCLEAN="echo 'flush_all' | netcat -q 1 localhost 11211"
+else
+	echo "Unknown db: $DB"
+	exit 1
 fi
 
 REPS=3
