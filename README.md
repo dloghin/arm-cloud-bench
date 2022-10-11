@@ -49,6 +49,10 @@ The results are shown on the screen and saved in a file named ``log-disk-<timest
 
 - Network
 
+- Unix Bench
+
+https://github.com/kdlucas/byte-unixbench
+
 ### TPC-H
 
 We use TPC-H V3.0.1. Make sure you unzip and move the resulting folder into ``tpch-kit`` under ``tpch``.
@@ -104,6 +108,19 @@ mysql -utest -pTest1234 tpcc < add_fkey_idx.sql
 sudo apt install redis
 redis-server --version
 redis-benchmark -n 10000000 -t set,get -q -P 40
+```
+
+### YCSB
+
+```
+sudo apt install python2 openjdk-8-jdk
+sudo apt install redis
+redis-server --version
+sudo apt install memcached
+memcached --version
+cd ycsb
+curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz
+tar xfvz ycsb-0.17.0.tar.gz
 ```
 
 ## License

@@ -2,8 +2,9 @@
 
 set -x 
 
-# DB="redis"
+DB="redis"
 DB="memcached"
+DB="rocksdb"
 
 if [ $# -gt 0 ]; then
 	DB=$1
@@ -20,6 +21,9 @@ if [ "$DB" == "redis" ]; then
 elif [ "$DB" == "memcached" ]; then
 	CMDSUFFIX="-p memcached.hosts=127.0.0.1"
 	CMDCLEAN="echo 'flush_all' | netcat -q 1 localhost 11211"
+elif [ "$DB" == "rocksdb" ]; then
+	CMDSUFFIX="-p rocksdb.dir=ycsb-rocksdb-data"
+	CMDCLEAN="rm -rf ycsb-rocksdb-data"
 else
 	echo "Unknown db: $DB"
 	exit 1
@@ -45,4 +49,4 @@ for REP in `seq 1 $REPS`; do
 		done
 	done
 done
-
+tar cjf $LOGD.tar.bz2 $LOGD
