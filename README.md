@@ -123,6 +123,43 @@ curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.
 tar xfvz ycsb-0.17.0.tar.gz
 ```
 
+#### RocksDB with YCSB
+
+We use YCSB 0.17.0 and update RocksDB version to 7.6.0. On both x86-64 and ARM, run:
+
+```
+git clone https://github.com/brianfrankcooper/YCSB.git
+cd YCSB
+git checkout 0.17.0
+# vim pom.xml
+# <rocksdb.version>7.6.0</rocksdb.version>
+mvn -pl site.ycsb:rocksdb-binding -am -DskipTests clean package
+# the resulting jars are in rocksdb/target/
+# return to this repository, ycsb folder
+cd ycsb/ycsb-0.17.0/rocksdb-binding/lib
+rm *
+cp <path-to-YCSB>/rocksdb/target/dependency/* .
+cp <path-to-YCSB>/rocksdb/target/rocksdb-binding-0.17.0.jar .
+```
+
+Only on ARM:
+
+```
+git clone https://github.com/facebook/rocksdb.git
+cd rocksdb
+git checkout v7.6.0
+make clean
+make rocksdbjava
+# return to this repository, ycsb folder
+cd ycsb/ycsb-0.17.0/rocksdb-binding/lib
+cp <path-to-rocksdb>/java/target/librocksdbjni-linux-aarch64.so .
+cp <path-to-rocksdb>/java/target/rocksdbjni-7.6.0-linux64.jar .
+rm rocksdbjni-7.6.0.jar
+ln -s rocksdbjni-7.6.0-linux64.jar rocksdbjni-7.6.0.jar
+```
+
+Go to ``ycsb`` and run ``./run_ycsb.sh rocksdb``.
+
 ## License
 
 lmbench is under GNU GENERAL PUBLIC LICENSE Version 2
