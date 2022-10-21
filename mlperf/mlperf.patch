@@ -1,5 +1,5 @@
 diff --git a/vision/classification_and_detection/Dockerfile.cpu b/vision/classification_and_detection/Dockerfile.cpu
-index b435c61..a1cd701 100755
+index b435c61..934ead5 100755
 --- a/vision/classification_and_detection/Dockerfile.cpu
 +++ b/vision/classification_and_detection/Dockerfile.cpu
 @@ -1,4 +1,4 @@
@@ -23,7 +23,7 @@ index b435c61..a1cd701 100755
 -      unzip
 +      unzip \
 +      cmake
-+      
++ 
 +RUN apt-get install -y --no-install-recommends libgl-dev
  
  RUN cd /opt && \
