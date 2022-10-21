@@ -1,0 +1,70 @@
+diff --git a/vision/classification_and_detection/Dockerfile.cpu b/vision/classification_and_detection/Dockerfile.cpu
+index b435c61..a1cd701 100755
+--- a/vision/classification_and_detection/Dockerfile.cpu
++++ b/vision/classification_and_detection/Dockerfile.cpu
+@@ -1,4 +1,4 @@
+-FROM ubuntu:16.04
++FROM ubuntu:20.04
+ 
+ ENV PYTHON_VERSION=3.7
+ ENV LANG C.UTF-8
+@@ -10,6 +10,7 @@ ENV HOME /root
+ 
+ RUN apt-get update
+ 
++ENV DEBIAN_FRONTEND=noninteractive
+ RUN apt-get install -y --no-install-recommends \
+       git \
+       build-essential \
+@@ -19,10 +20,13 @@ RUN apt-get install -y --no-install-recommends \
+       curl \
+       htop \
+       zip \
+-      unzip
++      unzip \
++      cmake
++      
++RUN apt-get install -y --no-install-recommends libgl-dev
+ 
+ RUN cd /opt && \
+-    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh -O miniconda.sh && \
++    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py37_4.12.0-Linux-x86_64.sh -O miniconda.sh && \
+     /bin/bash ./miniconda.sh -b -p /opt/anaconda3 && \
+     rm miniconda.sh && \
+     /opt/anaconda3/bin/conda clean -tipsy && \
+@@ -32,13 +36,18 @@ RUN cd /opt && \
+     conda config --set always_yes yes --set changeps1 no
+ 
+ RUN conda install pytorch-cpu torchvision-cpu -c pytorch
+-RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
++# RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
++RUN pip install future pillow tensorflow opencv-python
+ RUN pip install Cython && pip install pycocotools
+ RUN cd /tmp && \
+     git clone --recursive https://github.com/mlcommons/inference && \
+-    cd inference/loadgen && \
++    cd inference && git checkout v2.0 && \
++    cd loadgen && \
+     pip install pybind11 && \
+     CFLAGS="-std=c++14" python setup.py install && \
+     rm -rf mlperf
+ 
++ADD mlperf.patch /
++RUN cd /tmp/inference && git apply < /mlperf.patch
++
+ ENTRYPOINT ["/bin/bash"]
+diff --git a/vision/classification_and_detection/run_common.sh b/vision/classification_and_detection/run_common.sh
+index 6071019..987ef8d 100755
+--- a/vision/classification_and_detection/run_common.sh
++++ b/vision/classification_and_detection/run_common.sh
+@@ -95,6 +95,10 @@ if [ $name == "ssd-resnet34-pytorch" ] ; then
+     model_path="$MODEL_DIR/resnet34-ssd1200.pytorch"
+     profile=ssd-resnet34-pytorch
+ fi
++if [ $name == "ssd-mobilenet-pytorch" ] ; then
++    model_path="$MODEL_DIR/ssd_mobilenet_v1.pytorch"
++    profile=ssd-mobilenet-pytorch
++fi
+ 
+ 
+ #
