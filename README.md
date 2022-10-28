@@ -112,6 +112,8 @@ redis-benchmark -n 10000000 -t set,get -q -P 40
 
 ### YCSB
 
+We use YCSB 0.17.0: https://github.com/brianfrankcooper/YCSB
+
 ```
 sudo apt install python2 openjdk-8-jdk
 sudo apt install redis
@@ -121,6 +123,8 @@ memcached --version
 cd ycsb
 curl -O --location https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz
 tar xfvz ycsb-0.17.0.tar.gz
+./run_ycsb.sh redis
+./run_ycsb.sh memcached
 ```
 
 #### RocksDB with YCSB
@@ -159,6 +163,49 @@ ln -s rocksdbjni-7.6.0-linux64.jar rocksdbjni-7.6.0.jar
 ```
 
 Go to ``ycsb`` and run ``./run_ycsb.sh rocksdb``.
+
+### MLPerf
+
+MLPerf Code: https://github.com/mlcommons/inference
+
+- Vision (ssd-mobilenet)
+- Language (bert)
+
+```
+git clone https://github.com/mlcommons/inference.git
+cd inference
+git checkout v2.0
+
+cd tools/upscale_coco/
+python upscale_coco.py --inputs /home/ubuntu/git/arm-cloud-bench/mlperf/coco --outputs /home/ubuntu/git/arm-cloud-bench/mlperf/coco-300 --size 300 300 --format png
+
+cd ../../vision/classification_and_detection/
+export MODEL_DIR=/home/dumi/git/arm-cloud-bench/mlperf/models/ssd_mobilenet_v1_coco_2018_01_28
+export DATA_DIR=/home/dumi/git/arm-cloud-bench/mlperf/coco-300
+./run_local.sh tf ssd-mobilenet cpu
+export MODEL_DIR=/home/dumi/git/arm-cloud-bench/mlperf/models/pytorch_ssd_mobilenet
+./run_local.sh pytorch ssd-mobilenet cpu
+```
+
+Prepare Docker:
+
+```
+git clone https://github.com/mlcommons/inference.git
+cd inference
+git checkout v2.0
+git apply < ~/git/arm-cloud-bench/mlperf/mlperf.patch
+docker build -f Dockerfile.cpu -t mlperf-cpu .
+docker run -v /home/dumi/git/arm-cloud-bench/mlperf:/data -it mlperf-cpu
+```
+
+In Docker:
+
+```
+export DATA_DIR=/data/coco-300
+export MODEL_DIR=/data/models/ssd_mobilenet_v1_coco_2018_01_28
+./run_local.sh tf ssd-mobilenet cpu
+
+```
 
 ## License
 
