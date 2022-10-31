@@ -167,24 +167,19 @@ Go to ``ycsb`` and run ``./run_ycsb.sh rocksdb``.
 ### MLPerf
 
 MLPerf Code: https://github.com/mlcommons/inference
+MLPerf 2.0
 
-- Vision (ssd-mobilenet)
+- Vision (ssd-mobilenet for coco dataset resized to 300x300)
 - Language (bert)
+
+Prepare coco dataset:
 
 ```
 git clone https://github.com/mlcommons/inference.git
 cd inference
 git checkout v2.0
-
 cd tools/upscale_coco/
 python upscale_coco.py --inputs /home/ubuntu/git/arm-cloud-bench/mlperf/coco --outputs /home/ubuntu/git/arm-cloud-bench/mlperf/coco-300 --size 300 300 --format png
-
-cd ../../vision/classification_and_detection/
-export MODEL_DIR=/home/dumi/git/arm-cloud-bench/mlperf/models/ssd_mobilenet_v1_coco_2018_01_28
-export DATA_DIR=/home/dumi/git/arm-cloud-bench/mlperf/coco-300
-./run_local.sh tf ssd-mobilenet cpu
-export MODEL_DIR=/home/dumi/git/arm-cloud-bench/mlperf/models/pytorch_ssd_mobilenet
-./run_local.sh pytorch ssd-mobilenet cpu
 ```
 
 Prepare Docker:
@@ -201,10 +196,14 @@ docker run -v /home/dumi/git/arm-cloud-bench/mlperf:/data -it mlperf-cpu
 In Docker:
 
 ```
+cd /tmp/inference/vision/classification_and_detection
 export DATA_DIR=/data/coco-300
-export MODEL_DIR=/data/models/ssd_mobilenet_v1_coco_2018_01_28
+export MODEL_DIR=/data/models/tf_ssd_mobilenet
 ./run_local.sh tf ssd-mobilenet cpu
-
+export MODEL_DIR=/data/models/pytorch_ssd_mobilenet
+./run_local.sh pytorch ssd-mobilenet cpu
+export MODEL_DIR=/data/models/onnx_ssd_mobilenet
+./run_local.sh  ssd-mobilenet cpu
 ```
 
 ## License
