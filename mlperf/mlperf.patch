@@ -1,5 +1,5 @@
 diff --git a/vision/classification_and_detection/Dockerfile.cpu b/vision/classification_and_detection/Dockerfile.cpu
-index b435c61..6e59dd2 100755
+index b435c61..0884da7 100755
 --- a/vision/classification_and_detection/Dockerfile.cpu
 +++ b/vision/classification_and_detection/Dockerfile.cpu
 @@ -1,4 +1,4 @@
@@ -28,17 +28,19 @@ index b435c61..6e59dd2 100755
  
  RUN cd /opt && \
 -    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh -O miniconda.sh && \
-+    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py37_4.12.0-Linux-x86_64.sh -O miniconda.sh && \
++    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-py37_4.12.0-Linux-aarch64.sh -O miniconda.sh && \
      /bin/bash ./miniconda.sh -b -p /opt/anaconda3 && \
      rm miniconda.sh && \
      /opt/anaconda3/bin/conda clean -tipsy && \
-@@ -32,13 +36,18 @@ RUN cd /opt && \
+@@ -31,14 +35,23 @@ RUN cd /opt && \
+     echo "conda activate base" >> ~/.bashrc && \
      conda config --set always_yes yes --set changeps1 no
  
- RUN conda install pytorch-cpu torchvision-cpu -c pytorch
+-RUN conda install pytorch-cpu torchvision-cpu -c pytorch
 -RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
++# RUN conda install pytorch-cpu torchvision-cpu -c pytorch
 +# RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
-+RUN pip install future pillow tensorflow opencv-python
++RUN pip install future pillow tensorflow opencv-python tensorflow_io pyyaml onnxruntime
  RUN pip install Cython && pip install pycocotools
  RUN cd /tmp && \
      git clone --recursive https://github.com/mlcommons/inference && \
@@ -51,6 +53,10 @@ index b435c61..6e59dd2 100755
  
 +ADD mlperf.patch /
 +RUN cd /tmp/inference && git apply < /mlperf.patch
++
++ENV USE_CUDA=0
++RUN cd / && wget --quiet https://github.com/pytorch/pytorch/releases/download/v1.12.1/pytorch-v1.12.1.tar.gz && \
++    tar xf pytorch-v1.12.1.tar.gz && mv pytorch-v1.12.1 pytorch && cd pytorch && python3 setup.py install
 +
  ENTRYPOINT ["/bin/bash"]
 diff --git a/vision/classification_and_detection/run_common.sh b/vision/classification_and_detection/run_common.sh
@@ -68,3 +74,113 @@ index 6071019..987ef8d 100755
  
  
  #
+diff --git a/vision/medical_imaging/3d-unet-kits19/Dockerfile b/vision/medical_imaging/3d-unet-kits19/Dockerfile
+index 4a4e896..b86c68f 100644
+--- a/vision/medical_imaging/3d-unet-kits19/Dockerfile
++++ b/vision/medical_imaging/3d-unet-kits19/Dockerfile
+@@ -13,23 +13,23 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-ARG BASE_IMAGE
+-FROM ${BASE_IMAGE}
++#ARG BASE_IMAGE
++FROM ubuntu:20.04
+ 
+ ENV DEBIAN_FRONTEND noninteractive
+ 
+ RUN apt-get update && \
+     apt-get upgrade -y && \
+     apt-get install -y git
+-RUN apt-get install -y vim ripgrep tree
++RUN apt-get install -y vim ripgrep tree python3 python3-pip cmake protobuf-compiler
+ 
+ RUN python3 -m pip install --upgrade pip
+ 
+ # Install dependencies
+ RUN python3 -m pip install wrapt --upgrade --ignore-installed
+-RUN python3 -m pip install onnx==1.9.0 Pillow==8.2.0 tensorflow==2.4.1 numpy>=1.19.2
+-RUN python3 -m pip install tensorflow-addons https://github.com/onnx/onnx-tensorflow/archive/refs/heads/rel-1.8.0.zip
+-RUN python3 -m pip install git+https://github.com/NVIDIA/dllogger
++RUN python3 -m pip install onnx==1.9.0 Pillow==8.2.0 tensorflow==2.10.0 numpy>=1.19.2
++#RUN python3 -m pip install tensorflow-addons https://github.com/onnx/onnx-tensorflow/archive/refs/heads/rel-1.8.0.zip
++#RUN python3 -m pip install git+https://github.com/NVIDIA/dllogger
+ RUN python3 -m pip install nibabel==3.2.1 scipy==1.6.3
+ RUN python3 -m pip install https://github.com/mlcommons/logging/archive/refs/tags/0.7.1.zip
+ RUN python3 -m pip install test-generator==0.1.1
+@@ -53,10 +53,10 @@ RUN cd /tmp \
+  && rm -rf inference
+ 
+ # TF 2.4.1 libcusolver touchup 
+-RUN cd /usr/local/cuda-11.1/targets/x86_64-linux/lib/ \
+- && ln -s libcusolver.so.11 libcusolver.so.10 \
+- && cd -
+-ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
++# RUN cd /usr/local/cuda-11.1/targets/x86_64-linux/lib/ \
++# && ln -s libcusolver.so.11 libcusolver.so.10 \
++# && cd -
++# ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+ 
+ # Add user
+ ARG GID
+diff --git a/vision/medical_imaging/3d-unet-kits19/Makefile b/vision/medical_imaging/3d-unet-kits19/Makefile
+index a19917b..bbce69c 100644
+--- a/vision/medical_imaging/3d-unet-kits19/Makefile
++++ b/vision/medical_imaging/3d-unet-kits19/Makefile
+@@ -60,6 +60,7 @@ else
+ 		DOCKER_RUN_CMD := docker run --gpus=all
+ 	endif
+ endif
++DOCKER_RUN_CMD := docker run
+ 
+ 
+ .PHONY: setup
+@@ -159,10 +160,10 @@ convert_tensorflow_model: convert_onnx_model
+ .PHONY: build_docker
+ build_docker:
+ 	@echo "Building docker image..."
+-	@docker pull nvcr.io/nvidia/pytorch:20.12-py3
++#	@docker pull nvcr.io/nvidia/pytorch:20.12-py3
+ 	@docker build --build-arg GID=$(GROUPID) --build-arg UID=$(UID) --build-arg GROUP=$(GROUPNAME) --build-arg USER=$(UNAME) \
+ 	  --build-arg http_proxy=$(HTTP_PROXY) --build-arg https_proxy=$(HTTPS_PROXY) --build-arg HTTPS_PROXY=$(HTTPS_PROXY) --build-arg HTTP_PROXY=$(HTTP_PROXY) \
+-    --build-arg BASE_IMAGE=nvcr.io/nvidia/pytorch:20.12-py3 -t mlperf-inference-3d-unet-kits19 -f Dockerfile .
++        -t mlperf-inference-3d-unet-kits19 -f Dockerfile .
+ 
+ # root password is root, $user password is $user
+ .PHONY: launch_docker
+@@ -170,19 +171,19 @@ launch_docker: check_download_data_dir
+ 	@mkdir -p $(PREPROCESSED_DATA_DIR)
+ 	@mkdir -p $(POSTPROCESSED_DATA_DIR)
+ 	@echo "Launching docker container..."
++	@set -x
+ 	@$(DOCKER_RUN_CMD) --rm -it -w $(CONTAINER_VOL) -v $(HOST_VOL):$(CONTAINER_VOL) -v ${HOME}:/mnt/${HOME} \
+ 		-v $(DOWNLOAD_DATA_DIR):/downloaded_data_dir \
+-		--shm-size=4g --ulimit memlock=-1 --ulimit stack=67108864 \
+ 		-v /etc/timezone:/etc/timezone:ro -v /etc/localtime:/etc/localtime:ro \
+ 		--security-opt apparmor=unconfined --security-opt seccomp=unconfined \
+ 		--name mlperf-inference-3d-unet-kits19-$(UNAME) -h mlperf-inference-3d-unet-kits19-$(UNAME) --add-host mlperf-inference-3d-unet-kits19-$(UNAME):127.0.0.1 \
+-		--user $(UID):$(GROUPID) --net host --device /dev/fuse --cap-add SYS_ADMIN $(DOCKER_ARGS) mlperf-inference-3d-unet-kits19
++		--user $(UID):$(GROUPID) --net host --cap-add SYS_ADMIN $(DOCKER_ARGS) mlperf-inference-3d-unet-kits19
+ 
+ .PHONY: preprocess_data
+ preprocess_data: create_directories
+ 	@echo "Restructuring raw data to $(RAW_DATA_DIR)..."
+ 	@if [ ! -e $(RAW_DATA_DIR) ]; then \
+-		ln -s /downloaded_data_dir $(BUILD_DIR)/raw_data; \
++		ln -s $(DOWNLOAD_DATA_DIR) $(BUILD_DIR)/raw_data; \
+ 	fi
+ 	@echo "Preprocessing and saving preprocessed data to $(PREPROCESSED_DATA_DIR)..."
+ 	@if [ ! -e $(PREPROCESSED_DATA_DIR) ]; then \
+diff --git a/vision/medical_imaging/3d-unet-kits19/run.py b/vision/medical_imaging/3d-unet-kits19/run.py
+index 3dfd7bd..7d18e53 100644
+--- a/vision/medical_imaging/3d-unet-kits19/run.py
++++ b/vision/medical_imaging/3d-unet-kits19/run.py
+@@ -74,7 +74,7 @@ def get_args():
+                         help="Backend")
+     parser.add_argument("--scenario",
+                         choices=["SingleStream", "Offline"],
+-                        default="Offline",
++                        default="SingleStream",
+                         help="Scenario")
+     parser.add_argument("--accuracy",
+                         action="store_true",
