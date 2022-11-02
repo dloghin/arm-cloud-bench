@@ -1,3 +1,4 @@
+CREATE USER 'test'@'localhost' IDENTIFIED BY 'Test1234';
 DROP DATABASE IF EXISTS tpcc;
 CREATE DATABASE tpcc;
 GRANT ALL PRIVILEGES ON tpcc.* TO 'test'@'localhost';
