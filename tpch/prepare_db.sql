@@ -1,0 +1,4 @@
+DROP DATABASE tpch;
+CREATE DATABASE tpch;
+GRANT ALL PRIVILEGES ON tpch.* TO 'test'@'localhost';
+FLUSH PRIVILEGES;

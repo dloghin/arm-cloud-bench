@@ -24,7 +24,7 @@ function msec_to_sec() {
 	printf %d.%03d $SECS $MSECS
 }
 
-MYSQL="$MYSQLEXE -u $USER"
+MYSQL="$MYSQLEXE -u$USER"
 if [ ! -z $PASSWORD ]
 then
 	MYSQL="$MYSQL -p$PASSWORD"
