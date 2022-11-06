@@ -189,6 +189,8 @@ git clone https://github.com/mlcommons/inference.git
 cd inference
 git checkout v2.0
 git apply < ~/git/arm-cloud-bench/mlperf/mlperf.patch
+cd vision/classification_and_detection/
+cp ~/git/arm-cloud-bench/mlperf/mlperf.patch .
 docker build -f Dockerfile.cpu -t mlperf-cpu .
 docker run -v /home/dumi/git/arm-cloud-bench/mlperf:/data -it mlperf-cpu
 ```
