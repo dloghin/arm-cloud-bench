@@ -65,8 +65,8 @@ sudo apt install libmysqlclient-dev
 sudo mysql_secure_installation
 sudo mysql
 > CREATE USER 'test'@'localhost' IDENTIFIED BY 'Test1234';
-> CREATE DATABASE tpcc;
-> GRANT ALL PRIVILEGES ON tpcc.* TO 'test'@'localhost';
+> CREATE DATABASE tpch;
+> GRANT ALL PRIVILEGES ON tpch.* TO 'test'@'localhost';
 > FLUSH PRIVILEGES;
 > EXIT;
 cd tpch
