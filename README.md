@@ -184,6 +184,8 @@ python upscale_coco.py --inputs /home/ubuntu/git/arm-cloud-bench/mlperf/coco --o
 
 Prepare Docker:
 
+To install Docker, follow this guide: https://docs.docker.com/engine/install/ubuntu/
+
 ```
 git clone https://github.com/mlcommons/inference.git
 cd inference
@@ -209,7 +211,7 @@ export MODEL_DIR=/data/models/tf_ssd_mobilenet
 export MODEL_DIR=/data/models/pytorch_ssd_mobilenet
 ./run_local.sh pytorch ssd-mobilenet cpu
 export MODEL_DIR=/data/models/onnx_ssd_mobilenet
-./run_local.sh  ssd-mobilenet cpu
+./run_local.sh onnxruntime ssd-mobilenet cpu
 ```
 
 ## License
