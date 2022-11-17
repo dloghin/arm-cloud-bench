@@ -1,0 +1,26 @@
+diff --git a/images/orderer/Dockerfile b/images/orderer/Dockerfile
+index 56db5c8fc..ff31680d8 100644
+--- a/images/orderer/Dockerfile
++++ b/images/orderer/Dockerfile
+@@ -9,7 +9,8 @@ RUN apk add --no-cache tzdata
+ # set up nsswitch.conf for Go's "netgo" implementation
+ # - https://github.com/golang/go/blob/go1.9.1/src/net/conf.go#L194-L275
+ # - docker run --rm debian:stretch grep '^hosts:' /etc/nsswitch.conf
+-RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++# RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
++RUN echo 'hosts: files dns' > /etc/nsswitch.conf
+ 
+ FROM golang:${GO_VER}-alpine${ALPINE_VER} as golang
+ RUN apk add --no-cache \
+diff --git a/images/peer/Dockerfile b/images/peer/Dockerfile
+index aa4bfc680..91da5f8d1 100644
+--- a/images/peer/Dockerfile
++++ b/images/peer/Dockerfile
+@@ -35,6 +35,6 @@ VOLUME /var/hyperledger
+ COPY --from=peer /go/src/github.com/hyperledger/fabric/build/bin /usr/local/bin
+ COPY --from=peer /go/src/github.com/hyperledger/fabric/sampleconfig/msp ${FABRIC_CFG_PATH}/msp
+ COPY --from=peer /go/src/github.com/hyperledger/fabric/sampleconfig/core.yaml ${FABRIC_CFG_PATH}/core.yaml
+-COPY --from=peer /go/src/github.com/hyperledger/fabric/release/linux-amd64/builders/ccaas/bin/ /opt/hyperledger/ccaas_builder/bin/
++COPY --from=peer /go/src/github.com/hyperledger/fabric/release/linux-arm64/builders/ccaas/bin/ /opt/hyperledger/ccaas_builder/bin/
+ EXPOSE 7051
+ CMD ["peer","node","start"]
