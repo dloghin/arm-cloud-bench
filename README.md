@@ -53,6 +53,39 @@ The results are shown on the screen and saved in a file named ``log-disk-<timest
 
 https://github.com/kdlucas/byte-unixbench
 
+### TPC-C
+
+We use the code from https://github.com/Percona-Lab/tpcc-mysql.git
+
+```
+sudo apt install mariadb-server
+sudo apt install libmysqlclient-dev
+sudo mysql_secure_installation
+sudo mysql
+> CREATE USER 'test'@'localhost' IDENTIFIED BY 'Test1234';
+> CREATE DATABASE tpcc;
+> GRANT ALL PRIVILEGES ON tpcc.* TO 'test'@'localhost';
+> FLUSH PRIVILEGES;
+> EXIT;
+git clone https://github.com/Percona-Lab/tpcc-mysql.git
+cd tpcc-mysql/src
+make
+cd ..
+mysql -utest -pTest1234 tpcc < create_table.sql
+mysql -utest -pTest1234 tpcc < add_fkey_idx.sql
+./tpcc_load -h127.0.0.1 -dtpcc -utest -pTest1234 -w 10
+./tpcc_start -h127.0.0.1 -P3306 -dtpcc -utest -pTest1234 -w10 -c1 -r10 -l60
+```
+
+To run all the tests:
+
+```
+./run_tpcc.sh
+./parse_tpcc.sh <log-dir>
+```
+
+We use Aurora 2.11.0 (MySQL 5.7).
+
 ### TPC-H
 
 We use TPC-H V3.0.1. Make sure you unzip and move the resulting folder into ``tpch-kit`` under ``tpch``.
@@ -78,29 +111,7 @@ cd tpch
 ./powertest.sh
 ```
 
-### TPC-C
 
-We use the code from https://github.com/Percona-Lab/tpcc-mysql.git
-
-```
-sudo apt install mariadb-server
-sudo apt install libmysqlclient-dev
-sudo mysql_secure_installation
-sudo mysql
-> CREATE USER 'test'@'localhost' IDENTIFIED BY 'Test1234';
-> CREATE DATABASE tpcc;
-> GRANT ALL PRIVILEGES ON tpcc.* TO 'test'@'localhost';
-> FLUSH PRIVILEGES;
-> EXIT;
-git clone https://github.com/Percona-Lab/tpcc-mysql.git
-cd tpcc-mysql/src
-make
-cd ..
-mysql -utest -pTest1234 tpcc < create_table.sql
-mysql -utest -pTest1234 tpcc < add_fkey_idx.sql
-./tpcc_load -h127.0.0.1 -dtpcc -utest -pTest1234 -w 10
-./tpcc_start -h127.0.0.1 -P3306 -dtpcc -utest -pTest1234 -w10 -c1 -r10 -l60
-```
 
 ### Redis
 
@@ -213,6 +224,67 @@ export MODEL_DIR=/data/models/pytorch_ssd_mobilenet
 export MODEL_DIR=/data/models/onnx_ssd_mobilenet
 ./run_local.sh onnxruntime ssd-mobilenet cpu
 ```
+
+### BlockBench and Hyperledger Fabric
+
+Install Go:
+```
+mkdir tools
+cd tools
+wget https://go.dev/dl/go1.18.7.linux-arm64.tar.gz
+tar xf go1.18.7.linux-arm64.tar.gz 
+mkdir gopath
+export GOROOT=/home/ubuntu/tools/go
+export GOPATH=/home/ubuntu/tools/gopath
+export PATH=$PATH:$GOROOT/bin
+```
+
+Install NVM and the latest nodejs:
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
+npm install node
+```
+
+Configure Fabric
+```
+git clone https://github.com/hyperledger/fabric.git
+cd fabric
+git checkout v2.4.7
+make clean-all docker native GO_TAGS=noplugin
+cd ..
+git clone https://github.com/hyperledger/fabric-samples.git
+cd fabric-samples
+git checkout v2.2.9
+mkdir bin
+mkdir config
+cp ../fabric/build/bin/* bin/
+cd test-network
+./network.sh up createChannel
+./network.sh deployCC -c mychannel -ccn kvstore -ccl go -ccp /home/ubuntu/git/blockbench/benchmark/fabric2/chaincodes/kvstore -cci InitLedger
+```
+
+Blockbench
+```
+sudo apt install libtool libcurl4-openssl-dev jq
+cd ~/git
+git clone https://github.com/mrtazz/restclient-cpp.git
+cd restclient-cpp
+patch -p4 < ../blockbench/benchmark/parity/patch_restclient
+./autogen.sh
+sudo make install
+cd ~/git
+git clone https://github.com/dloghin/blockbench.git
+cd blockbench
+```
+
+```
+node block-server.js /home/ubuntu/git/fabric-samples/test-network 1 mychannel 8800
+node txn-server.js /home/ubuntu/git/fabric-samples/test-network 1 mychannel kvstore open_loop 8801
+./run-node-servers.sh
+./driver -db fabric-v2.2 -threads 1 -P /home/ubuntu/git/blockbench/src/macro/kvstore/workloads/workloada.spec -txrate 50 -endpoint 127.0.0.1:8800,127.0.0.1:8801 -wl ycsb -wt 20
+```
+
 
 ## License
 
