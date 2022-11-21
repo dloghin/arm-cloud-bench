@@ -9,11 +9,13 @@ tar xf go1.18.7.linux-arm64.tar.gz
 mkdir gopath
 export GOROOT=/home/ubuntu/tools/go
 export GOPATH=/home/ubuntu/tools/gopath
-export PATH=$PATH:$GOROOT/bin
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
 
 # 2. Install nvm and the latest nodejs:
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
 npm install node
+cd /home/$USER/git/arm-cloud-bench/blockbench
+npm install
 
 # 3. Configure Fabric
 cd /home/$USER
@@ -22,11 +24,13 @@ cd git
 git clone https://github.com/hyperledger/fabric.git
 cd fabric
 git checkout v2.4.7
+git apply < ../arm-cloud-bench/blockbench/fabric-arm64.patch
 make clean-all docker native GO_TAGS=noplugin
 cd ..
 git clone https://github.com/hyperledger/fabric-samples.git
 cd fabric-samples
 git checkout v2.2.9
+git apply < ../arm-cloud-bench/blockbench/fabric-samples.patch
 mkdir bin
 mkdir config
 cp ../fabric/build/bin/* bin/
@@ -44,3 +48,6 @@ patch -p4 < ../blockbench/benchmark/parity/patch_restclient
 sudo make install
 cd ../blockbench/src/macro/kvstore
 make
+cd /home/$USER/git/blockbench/benchmark/fabric2/chaincodes/kvstore
+go mod init blockbench.org/benchmark/fabric2/chaincodes/kvstore
+go mod tidy
