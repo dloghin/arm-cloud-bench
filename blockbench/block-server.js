@@ -46,14 +46,12 @@ async function getChannel(channelName) {
         };   
 
         // Create a new gateway for connecting to our peer node.
-	console.log("Before Gateway");
         const gateway = new Gateway();
         await gateway.connect(connection_profile, 
             { 
             identity:x509Identity ,
             discovery: { enabled: true, asLocalhost: true},
         });
-	console.log("After Gateway");
 
         // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork(channelName);
@@ -80,7 +78,7 @@ getChannel(channelName).then((network)=>{
                     blkTxns[blkNum].push(channel_header.tx_id)
                 }
             }
-            console.log(`Block ${blkNum} has txns [${blkTxns[blkNum]}]. `);
+            // console.log(`Block ${blkNum} has txns [${blkTxns[blkNum]}]. `);
 
         } catch (error) {
             console.error(`Failed to listen for blocks: ${error}`);
