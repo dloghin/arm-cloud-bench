@@ -34,6 +34,7 @@ git apply < ../arm-cloud-bench/blockbench/fabric-samples.patch
 mkdir bin
 mkdir config
 cp ../fabric/build/bin/* bin/
+cp ../arm-cloud-bench/blockbench/config/core.yaml config/
 
 # 4. Compile Blockbench
 cd /home/$USER/git
@@ -46,6 +47,7 @@ cd restclient-cpp
 patch -p4 < ../blockbench/benchmark/parity/patch_restclient
 ./autogen.sh
 sudo make install
+sudo ldconfig
 cd ../blockbench/src/macro/kvstore
 make
 cd /home/$USER/git/blockbench/benchmark/fabric2/chaincodes/kvstore
