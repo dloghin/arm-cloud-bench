@@ -1,0 +1,22 @@
+diff --git a/test-network/configtx/configtx.yaml b/test-network/configtx/configtx.yaml
+index 48bd1d7..e9fb1a4 100644
+--- a/test-network/configtx/configtx.yaml
++++ b/test-network/configtx/configtx.yaml
+@@ -224,7 +224,7 @@ Orderer: &OrdererDefaults
+     BatchSize:
+ 
+         # Max Message Count: The maximum number of messages to permit in a batch
+-        MaxMessageCount: 10
++        MaxMessageCount: 500
+ 
+         # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+         # the serialized messages in a batch.
+@@ -233,7 +233,7 @@ Orderer: &OrdererDefaults
+         # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+         # the serialized messages in a batch. A message larger than the preferred
+         # max bytes will result in a batch larger than preferred max bytes.
+-        PreferredMaxBytes: 512 KB
++        PreferredMaxBytes: 4096 KB
+ 
+     # Organizations is the list of orgs which are defined as participants on
+     # the orderer side of the network
