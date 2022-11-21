@@ -228,6 +228,7 @@ export MODEL_DIR=/data/models/onnx_ssd_mobilenet
 ### BlockBench and Hyperledger Fabric
 
 Install Go:
+
 ```
 mkdir tools
 cd tools
@@ -239,14 +240,15 @@ export GOPATH=/home/ubuntu/tools/gopath
 export PATH=$PATH:$GOROOT/bin
 ```
 
-Install NVM and the latest nodejs:
+Install nvm and the latest nodejs:
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
 npm install node
 ```
 
-Configure Fabric
+Configure Fabric:
+
 ```
 git clone https://github.com/hyperledger/fabric.git
 cd fabric
@@ -264,18 +266,22 @@ cd test-network
 ./network.sh deployCC -c mychannel -ccn kvstore -ccl go -ccp /home/ubuntu/git/blockbench/benchmark/fabric2/chaincodes/kvstore -cci InitLedger
 ```
 
-Blockbench
+Compile blockbench:
+
 ```
 sudo apt install libtool libcurl4-openssl-dev jq
 cd ~/git
+git clone https://github.com/dloghin/blockbench.git
+cd blockbench
+git checkout analysis2021
+cd ..
 git clone https://github.com/mrtazz/restclient-cpp.git
 cd restclient-cpp
 patch -p4 < ../blockbench/benchmark/parity/patch_restclient
 ./autogen.sh
 sudo make install
-cd ~/git
-git clone https://github.com/dloghin/blockbench.git
-cd blockbench
+cd ~/git/blockbench/src/macro/kvstore
+make
 ```
 
 ```
