@@ -7,9 +7,13 @@ cd tools
 wget https://go.dev/dl/go1.18.7.linux-arm64.tar.gz
 tar xf go1.18.7.linux-arm64.tar.gz 
 mkdir gopath
-export GOROOT=/home/ubuntu/tools/go
-export GOPATH=/home/ubuntu/tools/gopath
+export GOROOT=/home/$USER/tools/go
+export GOPATH=/home/$USER/tools/gopath
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
+echo "export GOROOT=/home/$USER/tools/go" >> /home/$USER/.bashrc
+echo "export GOPATH=/home/$USER/tools/gopath" >> /home/$USER/.bashrc
+echo "export PATH=$PATH:$GOROOT/bin:$GOPATH/bin" >> /home/$USER/.bashrc
 
 # 2. Install nvm and the latest nodejs:
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash

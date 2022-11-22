@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . ./conf.sh
+
 MYSQL="$MYSQLEXE -u$USER"
 if [ ! -z $PASSWORD ]
 then
@@ -23,3 +24,5 @@ $MYSQL < prepare_db.sql
 $MYSQL < prepare_db.sql
 ./loadtest.sh
 ./powertest.sh 2>&1 | tee $LOGD/run3.txt
+
+tar cjf $LOGD.tar.bz2 $LOGD

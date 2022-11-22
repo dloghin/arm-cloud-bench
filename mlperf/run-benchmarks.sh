@@ -1,9 +1,9 @@
 #!/bin/bash
 
 TSTP=`date +%F-%H-%M-%S`
-LOGD="logs-mlperf-$TSTP"
-mkdir $LOGD
-LOGD=`pwd`/$LOGD
+NLOGD="logs-mlperf-$TSTP"
+mkdir $NLOGD
+LOGD=`pwd`/$NLOGD
 
 REPS=3
 
@@ -18,3 +18,6 @@ for REP in `seq 1 $REPS`; do
 	export MODEL_DIR=/data/models/onnx_ssd_mobilenet
 	./run_local.sh onnxruntime ssd-mobilenet cpu 2>&1 | tee $LOGD/onnx-log-$REP.txt
 done
+cd $LOGD
+cd ..
+tar cjf $NLOGD.tar.bz2 $NLOGD
