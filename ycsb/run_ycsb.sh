@@ -29,8 +29,11 @@ else
 	exit 1
 fi
 
-REPS=3
-DISTRS="uniform zipfian"
+PERF_CMD="sudo perf record -p 990"
+
+REPS=1
+# DISTRS="uniform zipfian"
+DISTRS="uniform"
 WORKLOADS="workloada workloadb workloadc"
 
 TSTP=`date +%F-%H-%M-%S`
@@ -45,7 +48,16 @@ for REP in `seq 1 $REPS`; do
 			$CMDCLEAN
 			sleep 3
 			$BASECMD1 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-load-$REP-$DISTR-$WORKLOAD.txt
+			if ! [ -z "$PERF_CMD" ]; then
+				$PERF_CMD &
+			fi
 			$BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
+			if ! [ -z "$PERF_CMD" ]; then
+				sudo killall -SIGINT perf
+				sleep 1
+				sudo chown ubuntu:ubuntu perf.data
+				mv perf.data $LOGD/perf-$REP-$DISTR-$WORKLOAD.data
+                        fi
 		done
 	done
 done

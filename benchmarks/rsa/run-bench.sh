@@ -8,7 +8,8 @@ fi
 
 NTHREADS=$1
 
-EXEC="openssl speed rsa -multi $NTHREADS"
+EXEC="openssl speed rsa2048 -multi $NTHREADS"
 
 $EXEC
-
+$EXEC
+$EXEC
