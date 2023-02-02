@@ -1,5 +1,5 @@
 diff --git a/vision/classification_and_detection/Dockerfile.cpu b/vision/classification_and_detection/Dockerfile.cpu
-index b435c61..0884da7 100755
+index b435c61..e5e4c01 100755
 --- a/vision/classification_and_detection/Dockerfile.cpu
 +++ b/vision/classification_and_detection/Dockerfile.cpu
 @@ -1,4 +1,4 @@
@@ -32,15 +32,13 @@ index b435c61..0884da7 100755
      /bin/bash ./miniconda.sh -b -p /opt/anaconda3 && \
      rm miniconda.sh && \
      /opt/anaconda3/bin/conda clean -tipsy && \
-@@ -31,14 +35,23 @@ RUN cd /opt && \
+@@ -31,14 +35,25 @@ RUN cd /opt && \
      echo "conda activate base" >> ~/.bashrc && \
      conda config --set always_yes yes --set changeps1 no
  
 -RUN conda install pytorch-cpu torchvision-cpu -c pytorch
--RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
 +# RUN conda install pytorch-cpu torchvision-cpu -c pytorch
-+# RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
-+RUN pip install future pillow tensorflow opencv-python tensorflow_io pyyaml onnxruntime
+ RUN pip install future pillow onnx opencv-python-headless tensorflow onnxruntime
  RUN pip install Cython && pip install pycocotools
  RUN cd /tmp && \
      git clone --recursive https://github.com/mlcommons/inference && \
@@ -55,8 +53,11 @@ index b435c61..0884da7 100755
 +RUN cd /tmp/inference && git apply < /mlperf.patch
 +
 +ENV USE_CUDA=0
-+RUN cd / && wget --quiet https://github.com/pytorch/pytorch/releases/download/v1.12.1/pytorch-v1.12.1.tar.gz && \
-+    tar xf pytorch-v1.12.1.tar.gz && mv pytorch-v1.12.1 pytorch && cd pytorch && python3 setup.py install
++RUN pip install pyyaml
++RUN cd / && wget --quiet https://github.com/pytorch/pytorch/releases/download/v1.13.1/pytorch-v1.13.1.tar.gz && \
++    tar xf pytorch-v1.13.1.tar.gz && mv pytorch-v1.13.1 pytorch && cd pytorch && python3 setup.py install
++
++RUN apt-get update && apt-get install -y linux-tools-generic vim
 +
  ENTRYPOINT ["/bin/bash"]
 diff --git a/vision/classification_and_detection/run_common.sh b/vision/classification_and_detection/run_common.sh
