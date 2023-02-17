@@ -111,7 +111,58 @@ cd tpch
 ./powertest.sh
 ```
 
+### MonetDB
 
+To benchmark MonetDB, we use the code: https://github.com/MonetDBSolutions/tpch-scripts
+
+MonetDB config: https://www.monetdb.org/documentation-Sep2022/admin-guide/installation/server-setup-and-configuration/
+
+Compile and Install MonetDB
+
+```
+sudo apt -y install cmake bison
+wget https://github.com/MonetDB/MonetDB/archive/refs/tags/Sep2022_release.tar.gz
+tar xf Sep2022_release.tar.gz 
+cd MonetDB-Sep2022_release/
+mkdir build
+cd build
+cmake ..
+make -j4
+sudo make install
+```
+
+Setup MonetDB (based on https://www.monetdb.org/documentation-Sep2022/admin-guide/installation/server-setup-and-configuration/)
+
+First, create a file ``~/.monetdb``:
+
+```
+cat ~/.monetdb
+user=monetdb
+password=monetdb
+language=sql
+```
+
+```
+monetdbd create ~/my-dbfarm
+monetdbd start ~/my-dbfarm
+```
+
+
+```
+git clone https://github.com/MonetDBSolutions/tpch-scripts.git
+cd tpch-scripts
+git checkout 44cdc5480461ce4f91f270d6b9c2a9f7e459eb67
+# scale 1
+./tpch_build.sh -s 1 -f /home/$USER/my-dbfarm
+mserver5 --dbpath=/home/$USER/my-dbfarm/SF-1 --set monet_vault_key=/home/$USER/my-dbfarm/SF-1/.vaultkey
+cd 03_run
+./horizontal_run.sh -d SF-1 -n 3 -t exp-sf-1 -p 50000
+# scale 10
+./tpch_build.sh -s 10 -f /home/$USER/my-dbfarm
+mserver5 --dbpath=/home/$USER/my-dbfarm/SF-10 --set monet_vault_key=/home/$USER/my-dbfarm/SF-10/.vaultkey
+cd 03_run
+./horizontal_run.sh -d SF-10 -n 3 -t exp-sf-10 -p 50000
+```
 
 ### Redis
 
@@ -244,7 +295,7 @@ Install nvm and the latest nodejs:
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.2/install.sh | bash
-npm install node
+nvm install node
 ```
 
 Configure Fabric:
@@ -258,9 +309,11 @@ cd ..
 git clone https://github.com/hyperledger/fabric-samples.git
 cd fabric-samples
 git checkout v2.2.9
+git apply &lt; ../arm-cloud-bench/blockbench/fabric-samples.patch
 mkdir bin
 mkdir config
 cp ../fabric/build/bin/* bin/
+cp ../arm-cloud-bench/blockbench/config/core.yaml config/
 cd test-network
 ./network.sh up createChannel
 ./network.sh deployCC -c mychannel -ccn kvstore -ccl go -ccp /home/ubuntu/git/blockbench/benchmark/fabric2/chaincodes/kvstore -cci InitLedger
@@ -280,6 +333,7 @@ cd restclient-cpp
 patch -p4 < ../blockbench/benchmark/parity/patch_restclient
 ./autogen.sh
 sudo make install
+sudo ldconfig
 cd ~/git/blockbench/src/macro/kvstore
 make
 ```
@@ -291,6 +345,12 @@ node txn-server.js /home/ubuntu/git/fabric-samples/test-network 1 mychannel kvst
 ./driver -db fabric-v2.2 -threads 1 -P /home/ubuntu/git/blockbench/src/macro/kvstore/workloads/workloada.spec -txrate 50 -endpoint 127.0.0.1:8800,127.0.0.1:8801 -wl ycsb -wt 20
 ```
 
+## Profiling
+
+```
+echo -1 | sudo tee /proc/sys/kernel/perf_event_paranoid
+echo 0 | sudo tee /proc/sys/kernel/kptr_restrict
+```
 
 ## License
 
