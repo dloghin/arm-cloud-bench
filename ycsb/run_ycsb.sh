@@ -29,11 +29,11 @@ else
 	exit 1
 fi
 
-PERF_CMD="sudo perf record -p 990"
+# PERF_CMD="sudo perf record -p 990"
 
-REPS=1
-# DISTRS="uniform zipfian"
-DISTRS="uniform"
+REPS=3
+DISTRS="uniform zipfian"
+# DISTRS="uniform"
 WORKLOADS="workloada workloadb workloadc"
 
 TSTP=`date +%F-%H-%M-%S`
