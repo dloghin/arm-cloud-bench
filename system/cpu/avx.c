@@ -2,7 +2,7 @@
 // #pragma GCC optimize("O3","unroll-loops","omit-frame-pointer","inline") //Optimization flags
 // #pragma GCC option("arch=native","tune=native","no-zeroupper") //Enable AVX
 #pragma GCC target("avx") // Enable AVX
-#include <x86intrin.h>    //SSE Extensions
+#include <x86intrin.h>
 #include <sys/time.h>
 #include <math.h>
 #include <stdio.h>
@@ -21,14 +21,9 @@ inline void normal_sqrt()
         linear[i] = sqrtf(linear[i]);
 }
 
-// Exercise 1: Create a vectorized version of the "linear" function.
-// Please note the following:
-//  "vectorized" array is size V=N/8, because each __m256 variable holds 8 floats.
-//  sqrtf(const float& f) vectorized function is: _mm256_sqrt_ps(const __m256& v)
 __m256 __attribute__((aligned(32))) vectorized[V]; // Vectorized array
 inline void avx_sqrt()
 {
-    //****** Add AVX code here*******
     for (int i = 0; i < V; ++i)
         vectorized[i] = _mm256_sqrt_ps(vectorized[i]);
 }

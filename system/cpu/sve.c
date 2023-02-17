@@ -2,11 +2,12 @@
 #include <sys/time.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 struct timeval tv1, tv2;
 
 #define N 64000000 // Number of tests
-#define V N / 2    // Vectorized size
+#define V N / 8    // Vectorized size
 
 // linear function
 float linear[N];
@@ -18,11 +19,16 @@ inline void normal_sqrt()
 }
 
 // vectorized
-svfloat32x2_t vectorized[V]; // Vectorized array
+float vectorized[N]; // Vectorized array
 inline void sve_sqrt()
 {
-    for (int i = 0; i < V; ++i)
-        vectorized[i] = svrsqrte_f32(vectorized[i]);
+   svbool_t p32_all = svptrue_b32();
+   svfloat32_t vec;
+    for (int i = 0; i < V; ++i) {
+	vec = svld1(p32_all, vectorized + (8*i));
+	vec = svsqrt_f32_z(p32_all, vec);
+	svst1(p32_all, vectorized + (8*i), vec);
+    }
 }
 
 int main()
@@ -31,13 +37,7 @@ int main()
     for (int i = 0; i < N; ++i)
     {
         linear[i] = ((float)i) + 0.1335f;
-    }
-    for (int i = 0; i < V; ++i)
-    {
-        for (int v = 0; v < 8; ++v)
-        {
-            vectorized[i][v] = ((float)(i * 8 + v)) + 0.1335f;
-        }
+	vectorized[i] = ((float)i) + 0.1335f;
     }
 
     // Normal sqrt benchmarking. 20*64 Million Sqrts
@@ -49,7 +49,7 @@ int main()
            (double)(tv2.tv_usec - tv1.tv_usec) / 1000000 +
                (double)(tv2.tv_sec - tv1.tv_sec));
 
-    // AVX vectorized sqrt benchmarking. 20*8*8 Million Sqrts
+    // vectorized sqrt benchmarking. 20*8*8 Million Sqrts
     gettimeofday(&tv1, NULL);
     for (int i = 0; i < 20; ++i)
         sve_sqrt();
@@ -59,17 +59,14 @@ int main()
                (double)(tv2.tv_sec - tv1.tv_sec));
 
     // Check values
-    for (int i = 0; i < V; ++i)
+    for (int i = 0; i < N; ++i)
     {
-        for (int v = 0; v < 8; ++v)
-        {
-            if (fabs(linear[i * 8 + v] - vectorized[i][v]) > 0.00001f)
+        if (fabs(linear[i] - vectorized[i]) > 0.00001f)
             {
                 printf("ERROR: SVE sqrt is not the same as linear: %lf vs. %lf\n",
-                       linear[i * 8 + v], vectorized[i][v]);
+                       linear[i], vectorized[i]);
                 return -1;
             }
-        }
     }
 
     return 0;
