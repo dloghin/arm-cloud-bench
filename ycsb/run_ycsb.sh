@@ -29,7 +29,9 @@ else
 	exit 1
 fi
 
-# PERF_CMD="sudo perf record -p 990"
+# PERF_CMD="sudo perf record -p 1732"
+# PERF_CMD="sudo perf stat -e cache-misses -p 1628 -o perf.data"
+# PERF_CMD="sudo strace -c -o perf.data -p 1628"
 
 REPS=3
 DISTRS="uniform zipfian"
@@ -51,12 +53,19 @@ for REP in `seq 1 $REPS`; do
 			if ! [ -z "$PERF_CMD" ]; then
 				$PERF_CMD &
 			fi
-			$BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
+			# sudo perf record $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX
+			# sudo strace -c -o perf.data $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
+			perf stat $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
+			# sudo chown $USER:$USER perf.data
+			# mv perf.data $LOGD/perf-$REP-$DISTR-$WORKLOAD.data
+			# mv perf.data $LOGD/strace-$REP-$DISTR-$WORKLOAD.data
 			if ! [ -z "$PERF_CMD" ]; then
-				sudo killall -SIGINT perf
+				# sudo killall -SIGINT perf
+				sudo killall -SIGINT strace
 				sleep 1
-				sudo chown ubuntu:ubuntu perf.data
-				mv perf.data $LOGD/perf-$REP-$DISTR-$WORKLOAD.data
+				sudo chown $USER:$USER perf.data
+				# mv perf.data $LOGD/perf-$REP-$DISTR-$WORKLOAD.data
+				mv perf.data $LOGD/strace-$REP-$DISTR-$WORKLOAD.txt
                         fi
 		done
 	done
