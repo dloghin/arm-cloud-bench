@@ -55,7 +55,7 @@ for REP in `seq 1 $REPS`; do
 			fi
 			# sudo perf record $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX
 			# sudo strace -c -o perf.data $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
-			perf stat $BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
+			$BASECMD2 -P workloads_$DISTR/$WORKLOAD $CMDSUFFIX | tee $LOGD/log-run-$REP-$DISTR-$WORKLOAD.txt
 			# sudo chown $USER:$USER perf.data
 			# mv perf.data $LOGD/perf-$REP-$DISTR-$WORKLOAD.data
 			# mv perf.data $LOGD/strace-$REP-$DISTR-$WORKLOAD.data

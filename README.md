@@ -214,6 +214,7 @@ Only on ARM:
 git clone https://github.com/facebook/rocksdb.git
 cd rocksdb
 git checkout v7.6.0
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-arm64
 make clean
 make rocksdbjava
 # return to this repository, ycsb folder
@@ -259,6 +260,9 @@ cd vision/classification_and_detection/
 cp ~/git/arm-cloud-bench/mlperf/mlperf-arm64.patch .
 # or
 cp ~/git/arm-cloud-bench/mlperf/mlperf-x86_64.patch
+mv mlperf-arm64.patch mlperf.patch
+# or
+mv mlperf-x86_64.patch mlperf.patch
 docker build -f Dockerfile.cpu -t mlperf-cpu .
 docker run -v /home/$USER/git/arm-cloud-bench/mlperf:/data -it mlperf-cpu
 ```
@@ -309,7 +313,7 @@ cd ..
 git clone https://github.com/hyperledger/fabric-samples.git
 cd fabric-samples
 git checkout v2.2.9
-git apply &lt; ../arm-cloud-bench/blockbench/fabric-samples.patch
+git apply ../arm-cloud-bench/blockbench/fabric-samples.patch
 mkdir bin
 mkdir config
 cp ../fabric/build/bin/* bin/

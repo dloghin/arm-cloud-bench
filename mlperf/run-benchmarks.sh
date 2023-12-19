@@ -2,10 +2,10 @@
 
 TSTP=`date +%F-%H-%M-%S`
 NLOGD="logs-mlperf-$TSTP"
-mkdir $NLOGD
-LOGD=`pwd`/$NLOGD
+LOGD="/data/$NLOGD"
+mkdir -p $LOGD
 
-REPS=3
+REPS=10
 
 cd /tmp/inference/vision/classification_and_detection
 export DATA_DIR=/data/coco-300

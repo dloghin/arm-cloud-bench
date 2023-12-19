@@ -24,11 +24,12 @@ then
 	MYSQL="$MYSQL -p$PASSWORD"
 fi
 
+Q=$(printf %02d $NUM_Q)
 if ! [ -z "$PERFCMD" ]; then
 	mkdir -p perf-logs
-	$PERFCMD 2>&1 | tee perf-logs/perf-stat-query-`printf %02d $NUM_Q`.txt &
-fi	
-$MYSQL $DBNAME < ./tpch-kit/dbgen/queries/query-`printf %02d $NUM_Q`.sql
+	$PERFCMD 2>&1 | tee perf-logs/perf-stat-query-$Q.txt &
+fi
+$MYSQL $DBNAME < ./tpch-kit/dbgen/queries/query-$Q.sql
 if ! [ -z "$PERFCMD" ]; then
 	sudo killall -SIGINT perf
 fi

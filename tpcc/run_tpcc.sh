@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TPCC_HOME="/home/$USER/git/tpcc-mysql"
+TPCC_HOME="/root/git/tpcc-mysql"
 
 if ! [ -d "$TPCC_HOME" ]; then
 	echo "No such folder: $TPCC_HOME"
@@ -22,8 +22,8 @@ RUN_CMD="mysql -h$HOST -utest -pTest1234 tpcc"
 
 REPS=1
 
-# CONNS="1 4 8 10 16 20 24 30"
-CONNS="10"
+CONNS="1 4 8 10 16 20 24 30"
+# CONNS="10"
 
 WAREHOUSES=10
 TIME_WARMUP=10
@@ -42,9 +42,9 @@ mkdir $LOGD
 # run
 for REP in `seq 1 $REPS`; do
 	for CONN in $CONNS; do
-		sudo perf record -p 85202 & 
+		# sudo perf record -p 85202 & 
 		$TPCC_HOME/tpcc_start -h$HOST -P3306 -dtpcc -utest -pTest1234 -w$WAREHOUSES -c$CONN -r$TIME_WARMUP -l$TIME_BENCHMARK | tee $LOGD/log-tpcc-$CONN-$REP.txt
-		sudo killall -SIGINT perf
+		# sudo killall -SIGINT perf
 		sudo chown $USER:$USER perf.data
 		mv perf.data $LOGD/perf-tpcc-$CONN-$REP.data
 	done
