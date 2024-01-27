@@ -257,12 +257,9 @@ git apply < ~/git/arm-cloud-bench/mlperf/mlperf-arm64.patch
 # or
 git apply < ~/git/arm-cloud-bench/mlperf/mlperf-x86_64.patch
 cd vision/classification_and_detection/
-cp ~/git/arm-cloud-bench/mlperf/mlperf-arm64.patch .
+cp ~/git/arm-cloud-bench/mlperf/mlperf-arm64.patch mlperf.patch
 # or
-cp ~/git/arm-cloud-bench/mlperf/mlperf-x86_64.patch
-mv mlperf-arm64.patch mlperf.patch
-# or
-mv mlperf-x86_64.patch mlperf.patch
+cp ~/git/arm-cloud-bench/mlperf/mlperf-x86_64.patch mlperf.patch
 docker build -f Dockerfile.cpu -t mlperf-cpu .
 docker run -v /home/$USER/git/arm-cloud-bench/mlperf:/data -it mlperf-cpu
 ```

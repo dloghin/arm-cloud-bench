@@ -24,7 +24,7 @@ index b435c61..e5e4c01 100755
 +      unzip \
 +      cmake
 +
-+RUN apt-get install -y --no-install-recommends libgl-dev
++RUN apt-get install -y --no-install-recommends libgl-dev pybind11-dev
  
  RUN cd /opt && \
 -    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-4.6.14-Linux-x86_64.sh -O miniconda.sh && \
